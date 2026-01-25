@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "$schema": "https://json-schema.schemastore.org/claude-code-hooks.json",
   "hooks": {
     "Notification": [
       {
@@ -8,7 +8,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude-notifier/scripts/notify.sh",
-            "timeout": 30000
+            "timeout": 60000
           }
         ]
       },
@@ -18,7 +18,29 @@
           {
             "type": "command",
             "command": "$HOME/.claude-notifier/scripts/notify.sh",
+            "timeout": 60000
+          }
+        ]
+      },
+      {
+        "matcher": "tool_error",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/notify.sh",
             "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/interactive-notify.sh",
+            "timeout": 300000
           }
         ]
       }
