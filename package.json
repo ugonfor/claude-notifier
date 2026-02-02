@@ -16,11 +16,9 @@
     "claude",
     "mcp",
     "notification",
-    "telegram",
-    "slack",
-    "discord"
+    "telegram"
   ],
-  "author": "",
+  "author": "ugonfor",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
