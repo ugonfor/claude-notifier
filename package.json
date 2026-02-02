@@ -1,0 +1,39 @@
+{
+  "name": "claude-notifier-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for Claude Code notifications via Telegram, Slack, and Discord",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "claude-notifier-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "claude",
+    "mcp",
+    "notification",
+    "telegram",
+    "slack",
+    "discord"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}

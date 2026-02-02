@@ -2,6 +2,57 @@
 
 Claude Code 사용 중 사용자 입력이 필요할 때 메신저(Slack, Telegram, Discord)로 알림을 보내고, **메신저에서 직접 응답**할 수 있는 플러그인입니다.
 
+## 설치 방법
+
+### 방법 1: 플러그인으로 설치 (권장)
+
+```bash
+# 마켓플레이스에서 설치
+/plugin marketplace add ugonfor/claude-notifier
+/plugin install claude-notifier
+
+# 또는 GitHub에서 직접 설치
+/plugin install ugonfor/claude-notifier
+```
+
+### 방법 2: MCP Server로 설치
+
+```bash
+# npm 전역 설치
+npm install -g claude-notifier-mcp
+
+# Claude Code에 등록
+claude mcp add notifier -- npx claude-notifier-mcp
+```
+
+### 방법 3: Hook 기반 설치 (레거시)
+
+```bash
+git clone https://github.com/ugonfor/claude-notifier.git
+cd claude-notifier
+./install.sh
+```
+
+### 환경변수 설정
+
+```bash
+# ~/.bashrc 또는 ~/.zshrc에 추가
+export TELEGRAM_BOT_TOKEN=your_bot_token
+export TELEGRAM_CHAT_ID=your_chat_id
+export SLACK_WEBHOOK_URL=https://hooks.slack.com/...
+export DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+```
+
+### 플러그인 사용
+
+설치 후 Claude Code에서:
+
+```
+> "Telegram으로 '빌드 완료' 알림 보내줘"
+> /claude-notifier:notify 작업이 완료되었습니다
+> /claude-notifier:status
+```
+
 ## 주요 기능
 
 ### 단방향 알림
@@ -202,18 +253,36 @@ cp .env.example ~/.claude-notifier.env
 
 ```
 claude-notifier/
-├── scripts/
-│   ├── notify.sh               # 단방향 알림
-│   ├── interactive-notify.sh   # 양방향 통신 (PreToolUse용)
-│   ├── telegram.sh             # Telegram 단방향
-│   ├── telegram-interactive.sh # Telegram 양방향
-│   ├── slack.sh                # Slack 단방향
-│   ├── slack-interactive.sh    # Slack 양방향 안내
-│   └── discord.sh              # Discord 단방향
+├── .claude-plugin/
+│   └── plugin.json             # 플러그인 메타데이터
+├── .mcp.json                   # MCP 서버 설정
+├── src/                        # MCP 서버 소스 (TypeScript)
+│   ├── index.ts                # MCP 서버 진입점
+│   ├── config.ts               # 환경변수 로드
+│   └── tools/
+│       ├── telegram.ts         # Telegram API
+│       ├── slack.ts            # Slack Webhook
+│       └── discord.ts          # Discord Webhook
+├── skills/
+│   └── notify/
+│       └── SKILL.md            # 알림 스킬 정의
+├── commands/
+│   ├── notify.md               # /notify 커맨드
+│   └── status.md               # /status 커맨드
+├── scripts/                    # Hook 기반 스크립트 (레거시)
+│   ├── notify.sh
+│   ├── interactive-notify.sh
+│   ├── telegram.sh
+│   ├── telegram-interactive.sh
+│   ├── slack.sh
+│   ├── slack-interactive.sh
+│   └── discord.sh
 ├── hooks/
-│   └── settings.json           # Claude Code hooks 설정
-├── .env.example                # 설정 파일 예시
-├── install.sh                  # 설치 스크립트
+│   └── settings.json
+├── package.json
+├── tsconfig.json
+├── .env.example
+├── install.sh
 └── README.md
 ```
 

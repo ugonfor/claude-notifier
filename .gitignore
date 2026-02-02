@@ -1,0 +1,14 @@
+# Claude Code local files
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Node.js
+node_modules/
+dist/
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
