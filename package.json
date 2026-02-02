@@ -1,7 +1,7 @@
 {
   "name": "claude-notifier-mcp",
   "version": "1.0.0",
-  "description": "MCP Server for Claude Code notifications via Telegram, Slack, and Discord",
+  "description": "Claude Code plugin for Telegram notifications",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
