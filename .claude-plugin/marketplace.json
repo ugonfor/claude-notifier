@@ -1,0 +1,14 @@
+{
+  "name": "claude-notifier-marketplace",
+  "description": "Claude Notifier plugin marketplace",
+  "plugins": [
+    {
+      "name": "claude-notifier",
+      "description": "Telegram notifications for Claude Code",
+      "source": {
+        "type": "github",
+        "repo": "ugonfor/claude-notifier"
+      }
+    }
+  ]
+}
