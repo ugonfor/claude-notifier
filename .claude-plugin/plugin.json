@@ -1,6 +1,6 @@
 {
   "name": "claude-notifier",
-  "description": "Send notifications to Telegram, Slack, and Discord from Claude Code. Supports bidirectional communication with Telegram.",
+  "description": "Telegram notifications for Claude Code with bidirectional communication",
   "version": "1.0.0",
   "author": {
     "name": "ugonfor"
@@ -9,9 +9,6 @@
   "license": "MIT",
   "keywords": [
     "notification",
-    "telegram",
-    "slack",
-    "discord",
-    "messenger"
+    "telegram"
   ]
 }

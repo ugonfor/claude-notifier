@@ -73,12 +73,6 @@ export async function receiveTelegram(
   const timeoutMs = timeout * 1000;
   let lastUpdateId = 0;
 
-  // Send a prompt message to the user
-  await sendTelegram(
-    config,
-    "<b>[Claude Code]</b> 응답을 기다리고 있습니다. 메시지를 보내주세요."
-  );
-
   try {
     // Get the latest update ID first
     const initialResponse = await fetch(
