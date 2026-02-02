@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.schemastore.org/claude-code-hooks.json",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/notify.sh",
+            "timeout": 60000
+          }
+        ]
+      },
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/notify.sh",
+            "timeout": 60000
+          }
+        ]
+      },
+      {
+        "matcher": "tool_error",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/notify.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/interactive-notify.sh",
+            "timeout": 300000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude-notifier/scripts/notify.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
