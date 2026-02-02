@@ -1,10 +1,5 @@
 ---
-description: Check the configuration status of notification channels
-disable-model-invocation: true
+description: Check Telegram configuration status
 ---
 
-# Check Notification Status
-
-Use the `check_status` tool to display the current configuration status of all notification channels (Telegram, Slack, Discord).
-
-Report which channels are properly configured and ready to use.
+Use `check_status` to show if Telegram is configured.

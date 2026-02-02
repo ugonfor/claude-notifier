@@ -1,6 +1,6 @@
 # Claude Code local files
 CLAUDE.local.md
-.claude/settings.local.json
+.claude/
 
 # Node.js
 node_modules/

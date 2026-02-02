@@ -1,12 +1,7 @@
 ---
-description: Send a notification message to configured messenger platforms
+description: Send a Telegram notification
 ---
 
-# Send Notification
+Send the following message via Telegram: "$ARGUMENTS"
 
-Send the following notification message: "$ARGUMENTS"
-
-First, check which notification channels are configured using `check_status`.
-Then send the message to all configured channels.
-
-Report back which channels received the notification successfully.
+Use the `send_telegram` tool.
