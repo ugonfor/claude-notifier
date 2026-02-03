@@ -39,6 +39,24 @@ Telegram을 통해 Claude와 대화할 수 있습니다.
 **진입**: CLI에서 위 명령어 입력
 **종료**: Telegram에서 `exit`, `quit`, `종료`, `CLI로 돌아가` 입력
 
+### Telegram Bot Server (독립 실행)
+텔레그램에서 직접 Claude Code를 원격 실행할 수 있는 독립형 봇 서버입니다.
+
+```bash
+# 봇 서버 실행
+npm run bot
+# 또는
+claude-notifier-bot
+```
+
+**텔레그램 명령어:**
+- `/run <프롬프트>` - Claude Code 실행
+- `/cwd <경로>` - 작업 폴더 변경
+- `/status` - 현재 상태 확인
+- `/stop` - 실행 중인 작업 중지
+- `/help` - 도움말
+- 일반 메시지 - 해당 내용으로 Claude Code 실행
+
 ## 권한 설정 (선택)
 
 매번 permission 승인 없이 사용하려면 `~/.claude/settings.json`에 추가:
