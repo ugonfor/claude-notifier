@@ -1,12 +1,11 @@
 {
   "name": "claude-notifier-mcp",
-  "version": "1.0.0",
-  "description": "Claude Code plugin for Telegram notifications",
+  "version": "1.1.0",
+  "description": "Telegram-first supervisor communication for Claude Code",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "claude-notifier-mcp": "./dist/index.js",
-    "claude-notifier-bot": "./dist/bot-server.js"
+    "claude-notifier-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
