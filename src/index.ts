@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+const [major] = process.versions.node.split(".").map(Number);
+if (major < 18) {
+  console.error(`claude-notifier-mcp requires Node.js >= 18 (current: ${process.version}). Please upgrade.`);
+  process.exit(1);
+}
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
