@@ -27,17 +27,14 @@ Claude Code가 작업 중 supervisor에게 질문/보고가 필요할 때 CLI �
 3. 생성된 봇에게 아무 메시지나 전송
 4. `https://api.telegram.org/bot<TOKEN>/getUpdates`에서 `chat_id` 확인
 
-### 2. 환경 변수 설정
+### 2. MCP 서버 등록
 
-`~/.claude/settings.json`:
-
-```json
-{
-  "env": {
-    "TELEGRAM_BOT_TOKEN": "your_bot_token",
-    "TELEGRAM_CHAT_ID": "your_chat_id"
-  }
-}
+```bash
+claude mcp add supervisor \
+  -e TELEGRAM_BOT_TOKEN=your_token \
+  -e TELEGRAM_CHAT_ID=your_chat_id \
+  -s user \
+  -- npx -y claude-notifier-mcp
 ```
 
 ### 3. 권한 설정
@@ -48,8 +45,8 @@ Claude Code가 작업 중 supervisor에게 질문/보고가 필요할 때 CLI �
 {
   "permissions": {
     "allow": [
-      "mcp__claude-notifier__ask_supervisor",
-      "mcp__claude-notifier__check_status"
+      "mcp__supervisor__ask_supervisor",
+      "mcp__supervisor__check_status"
     ]
   }
 }
