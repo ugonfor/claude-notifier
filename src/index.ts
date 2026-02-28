@@ -8,7 +8,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { loadConfig, validateTelegramConfig } from "./config.js";
-import { sendTelegram, receiveTelegram } from "./tools/telegram.js";
+import { sendTelegram, receiveTelegram, askSupervisor } from "./tools/telegram.js";
 
 const config = loadConfig();
 
@@ -30,7 +30,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "send_telegram",
         description:
-          "Send a notification message via Telegram. Requires TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID environment variables.",
+          "Send a one-way notification via Telegram. For questions that need a reply, use ask_supervisor instead.",
         inputSchema: {
           type: "object" as const,
           properties: {
@@ -49,7 +49,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "receive_telegram",
         description:
-          "Wait for a response from the user via Telegram. Returns the user's message. Requires TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID environment variables.",
+          "Wait for a response from the user via Telegram. Low-level tool for chat mode. For the common ask-and-wait pattern, use ask_supervisor instead.",
         inputSchema: {
           type: "object" as const,
           properties: {
@@ -59,6 +59,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: [],
+        },
+      },
+      {
+        name: "ask_supervisor",
+        description:
+          "PRIMARY tool for supervisor communication. Sends a message via Telegram and waits for a reply. " +
+          "On timeout, returns a timeout indicator — you should then proceed autonomously. " +
+          "Use this instead of asking questions through the CLI.",
+        inputSchema: {
+          type: "object" as const,
+          properties: {
+            message: {
+              type: "string",
+              description: "The message to send to the supervisor",
+            },
+            timeout: {
+              type: "number",
+              description: "Timeout in seconds to wait for reply (default: 300)",
+            },
+          },
+          required: ["message"],
         },
       },
       {
@@ -139,6 +160,50 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       } else {
         return {
           content: [{ type: "text" as const, text: `Error: ${result.error}` }],
+        };
+      }
+    }
+
+    case "ask_supervisor": {
+      const telegramConfig = validateTelegramConfig(config);
+      if (!telegramConfig) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Error: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured.",
+            },
+          ],
+        };
+      }
+
+      const message = (args as { message: string; timeout?: number }).message;
+      const timeout =
+        (args as { message: string; timeout?: number }).timeout ||
+        config.interactive.timeout;
+
+      const result = await askSupervisor(telegramConfig, message, timeout);
+
+      if (result.replied) {
+        return {
+          content: [
+            { type: "text" as const, text: `Supervisor replied: ${result.message}` },
+          ],
+        };
+      } else if (result.timedOut) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `No reply from supervisor within ${timeout}s. Proceed autonomously.`,
+            },
+          ],
+        };
+      } else {
+        return {
+          content: [
+            { type: "text" as const, text: `Error: ${result.error}` },
+          ],
         };
       }
     }
