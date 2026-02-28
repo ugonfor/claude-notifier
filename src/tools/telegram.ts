@@ -65,6 +65,35 @@ export async function sendTelegram(
   }
 }
 
+export interface AskSupervisorResult {
+  replied: boolean;
+  message?: string;
+  timedOut?: boolean;
+  error?: string;
+}
+
+export async function askSupervisor(
+  config: TelegramConfig,
+  message: string,
+  timeout: number = 300,
+  chatId?: string
+): Promise<AskSupervisorResult> {
+  const sendResult = await sendTelegram(config, message, chatId);
+  if (!sendResult.success) {
+    return { replied: false, error: `Failed to send: ${sendResult.error}` };
+  }
+
+  const receiveResult = await receiveTelegram(config, timeout);
+
+  if (receiveResult.success && receiveResult.message) {
+    return { replied: true, message: receiveResult.message };
+  } else if (receiveResult.timedOut) {
+    return { replied: false, timedOut: true };
+  } else {
+    return { replied: false, error: receiveResult.error };
+  }
+}
+
 export async function receiveTelegram(
   config: TelegramConfig,
   timeout: number = 300

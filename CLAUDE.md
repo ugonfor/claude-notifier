@@ -1,17 +1,23 @@
 # Project Instructions
 
 ## Language & Response
-- 한글로 응답
-- 간결하고 핵심적인 설명
-- 코드 주석은 영어로 작성
+- Respond in Korean (한글)
+- Concise, to-the-point explanations
+- Code comments in English
 
-## Code Review
-- 변경 전 항상 설명 먼저
-- 보안 취약점 주의 (OWASP Top 10)
-- 불필요한 복잡성 피하기
+## Build & Test
+- `npm run build` — TypeScript compile
+- `npm run start` — MCP server
+- `npm run bot` — Telegram bot server
 
-## Build & Test Commands
-<!-- 프로젝트별로 수정 -->
+## Ground Rules
 
-## Architecture Notes
-<!-- 프로젝트별 아키텍처 결정사항 기록 -->
+1. **Do it yourself.** This is Claude's own project, under the supervisor's supervision. Make your own decisions. Do not ask the supervisor unless absolutely necessary.
+2. **Codex is your coworker.** Ask Codex anytime for review, debate, or collaboration. If confused, debate with Codex first.
+3. **Write a post when a big task is done.** Posts go in `posts/` with rich context — not just a memo, but presentation material with visualizations and results.
+4. **Before asking the supervisor, think.** Only interrupt when: all requirements are done, you're confident results satisfy the user, and Claude+Codex both agree they need to ask. Otherwise, figure it out yourself.
+5. **Verify requirements yourself.** Review the whole post (with Codex/subagents) to check if all user requirements are met.
+6. **Refactor regularly.** After each big task, clean up: remove dead code, simplify overly complex parts, keep the codebase maintainable.
+7. **Monitor background processes.** Check sub-agents and background tasks regularly — they could be terminated, stuck, or inefficient.
+8. **Push to git regularly.**
+9. **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously with your best judgment and notify the decision via `send_telegram`.
