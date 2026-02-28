@@ -76,11 +76,15 @@ export async function askSupervisor(
   config: TelegramConfig,
   message: string,
   timeout: number = 300,
-  chatId?: string
+  waitForReply: boolean = true
 ): Promise<AskSupervisorResult> {
-  const sendResult = await sendTelegram(config, message, chatId);
+  const sendResult = await sendTelegram(config, message);
   if (!sendResult.success) {
     return { replied: false, error: `Failed to send: ${sendResult.error}` };
+  }
+
+  if (!waitForReply) {
+    return { replied: false };
   }
 
   const receiveResult = await receiveTelegram(config, timeout);
