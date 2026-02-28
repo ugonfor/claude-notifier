@@ -8,7 +8,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { loadConfig, validateTelegramConfig } from "./config.js";
-import { sendTelegram, receiveTelegram, askSupervisor } from "./tools/telegram.js";
+import { sendTelegram, askSupervisor } from "./tools/telegram.js";
 
 const config = loadConfig();
 
@@ -44,21 +44,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ["message"],
-        },
-      },
-      {
-        name: "receive_telegram",
-        description:
-          "Wait for a response from the user via Telegram. Low-level tool for chat mode. For the common ask-and-wait pattern, use ask_supervisor instead.",
-        inputSchema: {
-          type: "object" as const,
-          properties: {
-            timeout: {
-              type: "number",
-              description: "Timeout in seconds (default: 300)",
-            },
-          },
-          required: [],
         },
       },
       {
@@ -127,41 +112,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           },
         ],
       };
-    }
-
-    case "receive_telegram": {
-      const telegramConfig = validateTelegramConfig(config);
-      if (!telegramConfig) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "Error: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured.",
-            },
-          ],
-        };
-      }
-
-      const timeout =
-        (args as { timeout?: number }).timeout || config.interactive.timeout;
-
-      const result = await receiveTelegram(telegramConfig, timeout);
-
-      if (result.success) {
-        return {
-          content: [{ type: "text" as const, text: `User: ${result.message}` }],
-        };
-      } else if (result.timedOut) {
-        return {
-          content: [
-            { type: "text" as const, text: `Timeout after ${timeout}s` },
-          ],
-        };
-      } else {
-        return {
-          content: [{ type: "text" as const, text: `Error: ${result.error}` }],
-        };
-      }
     }
 
     case "ask_supervisor": {
