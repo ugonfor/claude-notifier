@@ -13,8 +13,7 @@ Claude Code가 작업 중 supervisor에게 질문/보고가 필요할 때 CLI �
 
 | Tool | 설명 |
 |------|------|
-| `ask_supervisor` | **핵심 도구.** Telegram으로 메시지 전송 + 응답 대기. 타임아웃 시 자율 진행. |
-| `send_telegram` | 일방 알림 전송 (응답 대기 없음) |
+| `ask_supervisor` | Telegram으로 메시지 전송 + 응답 대기. 타임아웃 시 자율 진행. |
 | `check_status` | Telegram 설정 상태 확인 |
 
 ---
@@ -50,7 +49,6 @@ Claude Code가 작업 중 supervisor에게 질문/보고가 필요할 때 CLI �
   "permissions": {
     "allow": [
       "mcp__claude-notifier__ask_supervisor",
-      "mcp__claude-notifier__send_telegram",
       "mcp__claude-notifier__check_status"
     ]
   }
@@ -63,7 +61,7 @@ Claude Code가 작업 중 supervisor에게 질문/보고가 필요할 때 CLI �
 
 `CLAUDE.md`에 다음 규칙을 추가하면 Claude Code가 Telegram-first로 동작합니다:
 
-> **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously with your best judgment and notify the decision via `send_telegram`.
+> **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously with your best judgment.
 
 ---
 
@@ -91,7 +89,7 @@ npm run bot      # 독립형 봇 서버
 ```
 claude-notifier/
 ├── src/
-│   ├── index.ts           # MCP 서버 (ask_supervisor, send_telegram, check_status)
+│   ├── index.ts           # MCP 서버 (ask_supervisor, check_status)
 │   ├── tools/telegram.ts  # Telegram API 함수
 │   ├── config.ts          # 환경 설정
 │   └── bot-server.ts      # 독립형 봇 서버

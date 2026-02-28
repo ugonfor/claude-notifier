@@ -20,4 +20,4 @@
 6. **Refactor regularly.** After each big task, clean up: remove dead code, simplify overly complex parts, keep the codebase maintainable.
 7. **Monitor background processes.** Check sub-agents and background tasks regularly — they could be terminated, stuck, or inefficient.
 8. **Push to git regularly.**
-9. **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously with your best judgment and notify the decision via `send_telegram`.
+9. **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously with your best judgment.

@@ -8,7 +8,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { loadConfig, validateTelegramConfig } from "./config.js";
-import { sendTelegram, askSupervisor } from "./tools/telegram.js";
+import { askSupervisor } from "./tools/telegram.js";
 
 const config = loadConfig();
 
@@ -27,25 +27,6 @@ const server = new Server(
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
-      {
-        name: "send_telegram",
-        description:
-          "Send a one-way notification via Telegram. For questions that need a reply, use ask_supervisor instead.",
-        inputSchema: {
-          type: "object" as const,
-          properties: {
-            message: {
-              type: "string",
-              description: "The message to send",
-            },
-            chat_id: {
-              type: "string",
-              description: "Optional: Override the default chat ID",
-            },
-          },
-          required: ["message"],
-        },
-      },
       {
         name: "ask_supervisor",
         description:
@@ -84,36 +65,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   switch (name) {
-    case "send_telegram": {
-      const telegramConfig = validateTelegramConfig(config);
-      if (!telegramConfig) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "Error: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured.",
-            },
-          ],
-        };
-      }
-
-      const message = (args as { message: string; chat_id?: string }).message;
-      const chatId = (args as { message: string; chat_id?: string }).chat_id;
-
-      const result = await sendTelegram(telegramConfig, message, chatId);
-
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: result.success
-              ? `Telegram message sent. ID: ${result.messageId}`
-              : `Failed: ${result.error}`,
-          },
-        ],
-      };
-    }
-
     case "ask_supervisor": {
       const telegramConfig = validateTelegramConfig(config);
       if (!telegramConfig) {
