@@ -32,6 +32,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description:
           "PRIMARY tool for supervisor communication. Sends a message via Telegram and waits for a reply. " +
           "On timeout, returns a timeout indicator — you should then proceed autonomously. " +
+          "Set wait_for_reply=false to send a notification without waiting (e.g. to report an autonomous decision). " +
           "Use this instead of asking questions through the CLI.",
         inputSchema: {
           type: "object" as const,
@@ -43,6 +44,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             timeout: {
               type: "number",
               description: "Timeout in seconds to wait for reply (default: 300)",
+            },
+            wait_for_reply: {
+              type: "boolean",
+              description: "Set false to send without waiting for reply (default: true)",
             },
           },
           required: ["message"],
@@ -78,12 +83,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      const message = (args as { message: string; timeout?: number }).message;
-      const timeout =
-        (args as { message: string; timeout?: number }).timeout ||
-        config.interactive.timeout;
+      const { message, timeout: t, wait_for_reply: w } =
+        args as { message: string; timeout?: number; wait_for_reply?: boolean };
+      const timeout = t || config.interactive.timeout;
+      const waitForReply = w !== false;
 
-      const result = await askSupervisor(telegramConfig, message, timeout);
+      const result = await askSupervisor(telegramConfig, message, timeout, waitForReply);
+
+      if (!waitForReply) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: result.error
+                ? `Error: ${result.error}`
+                : "Message sent to supervisor.",
+            },
+          ],
+        };
+      }
 
       if (result.replied) {
         return {
