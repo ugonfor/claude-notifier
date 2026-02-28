@@ -1,44 +1,36 @@
 # Claude Notifier
 
-> **CLI 터미널 없이도 Telegram에서 Claude Code와 대화하기**
+> **Telegram을 통해 Claude Code와 supervisor가 소통하는 플러그인**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 
-Claude Code용 Telegram 플러그인으로, 알림 전송부터 양방향 대화, 원격 실행까지 지원합니다.
+Claude Code가 작업 중 supervisor에게 질문/보고가 필요할 때 CLI 대신 Telegram으로 연락하고, 300초 내 응답이 없으면 자율적으로 진행합니다.
 
 ---
 
-## 주요 기능
+## MCP Tools
 
-| 기능 | 설명 |
+| Tool | 설명 |
 |------|------|
-| **단방향 알림** | Claude → Telegram으로 메시지 전송 |
-| **양방향 대화** | Telegram에서 Claude와 실시간 대화 |
-| **원격 실행** | Telegram 봇 서버로 Claude Code 원격 제어 |
+| `ask_supervisor` | **핵심 도구.** Telegram으로 메시지 전송 + 응답 대기. 타임아웃 시 자율 진행. |
+| `send_telegram` | 일방 알림 전송 (응답 대기 없음) |
+| `check_status` | Telegram 설정 상태 확인 |
 
 ---
 
-## 빠른 시작
+## 설치
 
-### 1. 설치
+### 1. Telegram 봇 생성
 
-```bash
-# 마켓플레이스 추가 (최초 1회)
-claude plugin marketplace add ugonfor/claude-notifier
-
-# 플러그인 설치
-claude plugin install claude-notifier
-```
+1. [@BotFather](https://t.me/BotFather)에게 `/newbot` 명령
+2. 봇 이름 설정 후 `TELEGRAM_BOT_TOKEN` 획득
+3. 생성된 봇에게 아무 메시지나 전송
+4. `https://api.telegram.org/bot<TOKEN>/getUpdates`에서 `chat_id` 확인
 
 ### 2. 환경 변수 설정
 
-```bash
-export TELEGRAM_BOT_TOKEN=your_bot_token
-export TELEGRAM_CHAT_ID=your_chat_id
-```
-
-또는 `~/.claude/settings.json`에 추가:
+`~/.claude/settings.json`:
 
 ```json
 {
@@ -49,92 +41,29 @@ export TELEGRAM_CHAT_ID=your_chat_id
 }
 ```
 
-### 3. Telegram 봇 생성
+### 3. 권한 설정
 
-1. [@BotFather](https://t.me/BotFather)에게 `/newbot` 명령
-2. 봇 이름 설정 후 `TELEGRAM_BOT_TOKEN` 획득
-3. 생성된 봇에게 아무 메시지나 전송
-4. `https://api.telegram.org/bot<TOKEN>/getUpdates`에서 `chat_id` 확인
+`~/.claude/settings.json`에 추가:
 
----
-
-## 사용법
-
-### 방법 1: MCP 도구로 알림 보내기
-
-Claude Code 대화 중 알림 전송:
-
-```
-> "Telegram으로 '빌드 완료!' 알림 보내줘"
-> /claude-notifier:notify 작업이 완료되었습니다
-> /claude-notifier:status
-```
-
-### 방법 2: Telegram 대화 모드
-
-CLI에서 Telegram을 통해 Claude와 대화:
-
-```
-> /claude-notifier:chat
-```
-
-- **진입**: 위 명령어 입력
-- **종료**: Telegram에서 `exit`, `quit`, `종료` 입력
-
-### 방법 3: 독립형 봇 서버 (원격 실행)
-
-컴퓨터 앞에 없어도 Telegram에서 Claude Code 실행:
-
-```bash
-# 봇 서버 시작
-npm run bot
-```
-
-**Telegram 명령어:**
-
-| 명령어 | 설명 |
-|--------|------|
-| `/run <프롬프트>` | Claude Code 실행 |
-| `/cwd <경로>` | 작업 폴더 변경 |
-| `/status` | 현재 상태 확인 |
-| `/stop` | 실행 중인 작업 중지 |
-| `/help` | 도움말 표시 |
-| 일반 메시지 | 해당 내용으로 Claude Code 실행 |
-
----
-
-## 아키텍처
-
-```
-┌─────────────────────────────────────────────────────┐
-│                     사용자                           │
-│                       ↕                             │
-│                   Telegram                          │
-└───────────────────────┬─────────────────────────────┘
-                        │
-         ┌──────────────┼──────────────┐
-         ↓              ↓              ↓
-┌────────────────┐ ┌──────────┐ ┌─────────────────┐
-│  MCP 도구 모드  │ │ 채팅 모드 │ │  봇 서버 모드    │
-│  (index.ts)    │ │  (Hook)  │ │ (bot-server.ts) │
-└────────────────┘ └──────────┘ └─────────────────┘
-         │              │              │
-         └──────────────┼──────────────┘
-                        ↓
-               ┌─────────────────┐
-               │   Claude Code   │
-               └─────────────────┘
+```json
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude-notifier__ask_supervisor",
+      "mcp__claude-notifier__send_telegram",
+      "mcp__claude-notifier__check_status"
+    ]
+  }
+}
 ```
 
 ---
 
-## MCP Tools
+## Ground Rule #9
 
-| Tool | 설명 |
-|------|------|
-| `send_telegram` | Telegram으로 메시지 전송 |
-| `receive_telegram` | 사용자 응답 대기 (타임아웃 설정 가능) |
-| `check_status` | Telegram 설정 상태 확인 |
+`CLAUDE.md`에 다음 규칙을 추가하면 Claude Code가 Telegram-first로 동작합니다:
+
+> **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously with your best judgment and notify the decision via `send_telegram`.
 
 ---
 
@@ -148,77 +77,31 @@ npm run bot
 
 ---
 
-## 권한 설정 (선택)
-
-매번 승인 없이 사용하려면 `~/.claude/settings.json`에 추가:
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "mcp__claude-notifier__send_telegram",
-      "mcp__claude-notifier__receive_telegram",
-      "mcp__claude-notifier__check_status"
-    ]
-  }
-}
-```
-
----
-
 ## 개발
 
 ```bash
-# 의존성 설치
 npm install
-
-# 빌드
 npm run build
-
-# MCP 서버 실행
-npm run start
-
-# 봇 서버 실행
-npm run bot
-
-# 개발 모드 (watch)
-npm run dev
+npm run start    # MCP 서버
+npm run bot      # 독립형 봇 서버
 ```
-
----
 
 ## 프로젝트 구조
 
 ```
 claude-notifier/
 ├── src/
-│   ├── index.ts        # MCP 서버 엔트리포인트
-│   ├── bot-server.ts   # 독립형 Telegram 봇 서버
-│   ├── config.ts       # 환경 설정 로더
-│   └── tools/          # MCP 도구 구현
-│       ├── send.ts
-│       ├── receive.ts
-│       └── status.ts
-├── dist/               # 빌드 출력
-├── package.json
-├── tsconfig.json
-└── marketplace.json    # 플러그인 마켓플레이스 메타데이터
+│   ├── index.ts           # MCP 서버 (ask_supervisor, send_telegram, check_status)
+│   ├── tools/telegram.ts  # Telegram API 함수
+│   ├── config.ts          # 환경 설정
+│   └── bot-server.ts      # 독립형 봇 서버
+├── .claude-plugin/        # 플러그인 메타데이터
+├── CLAUDE.md              # Ground Rules
+└── package.json
 ```
 
 ---
 
 ## 라이선스
 
-MIT License - 자유롭게 사용, 수정, 배포할 수 있습니다.
-
----
-
-## 기여
-
-이슈와 PR은 언제나 환영합니다!
-
-1. Fork
-2. Feature branch 생성 (`git checkout -b feature/amazing-feature`)
-3. Commit (`git commit -m 'feat: add amazing feature'`)
-4. Push (`git push origin feature/amazing-feature`)
-5. Pull Request 생성
+MIT
