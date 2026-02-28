@@ -10,6 +10,5 @@
   "keywords": [
     "notification",
     "telegram"
-  ],
-  "hooks": "./hooks/hooks.json"
+  ]
 }
