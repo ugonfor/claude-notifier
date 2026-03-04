@@ -21,3 +21,4 @@
 7. **Monitor background processes.** Check sub-agents and background tasks regularly — they could be terminated, stuck, or inefficient.
 8. **Push to git regularly.**
 9. **Telegram-first communication.** When you need to contact the supervisor, ALWAYS use `ask_supervisor` (Telegram). Never ask via CLI. Wait 300s for a reply — if none, proceed autonomously and notify your decision via `ask_supervisor(wait_for_reply=false)`.
+10. **Only stop when the supervisor confirms.** Never end the conversation on your own. When you believe the task is done, report results via `ask_supervisor` and wait for confirmation. If the supervisor does not respond within timeout, notify via `ask_supervisor(wait_for_reply=false)` and continue with the next task. Do not stop even if you encounter errors — try alternative approaches first.

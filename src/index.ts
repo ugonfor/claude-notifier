@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const [major] = process.versions.node.split(".").map(Number);
-if (major < 18) {
-  console.error(`claude-notifier-mcp requires Node.js >= 18 (current: ${process.version}). Please upgrade.`);
+if (major < 16) {
+  console.error(`claude-notifier-mcp requires Node.js >= 16 (current: ${process.version}). Please upgrade.`);
   process.exit(1);
 }
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 const [major] = process.versions.node.split(".").map(Number);
-if (major < 18) {
-  console.error(`claude-notifier-mcp requires Node.js >= 18 (current: ${process.version}). Please upgrade.`);
+if (major < 16) {
+  console.error(`claude-notifier-mcp requires Node.js >= 16 (current: ${process.version}). Please upgrade.`);
   process.exit(1);
 }
 
+import { fetch } from "undici";
 import { spawn, ChildProcess } from "child_process";
 import { loadConfig, validateTelegramConfig } from "./config.js";
 import { sendTelegram } from "./tools/telegram.js";
@@ -26,12 +27,16 @@ interface BotState {
   lastUpdateId: number;
   activeProcess: ChildProcess | null;
   currentCwd: string;
+  currentTaskPrompt: string | null;
+  taskId: number;
 }
 
 const state: BotState = {
   lastUpdateId: 0,
   activeProcess: null,
   currentCwd: process.cwd(),
+  currentTaskPrompt: null,
+  taskId: 0,
 };
 
 const config = loadConfig();
@@ -90,13 +95,25 @@ function parseCommand(text: string): { command: string; args: string } | null {
   return { command: "prompt", args: trimmed };
 }
 
+function taskLabel(): string {
+  return `[#${state.taskId}]`;
+}
+
+function promptSummary(prompt: string | null, maxLen: number = 80): string {
+  if (!prompt) return "(unknown)";
+  return prompt.length > maxLen ? prompt.slice(0, maxLen) + "..." : prompt;
+}
+
 async function runClaude(prompt: string, cwd: string): Promise<void> {
   if (state.activeProcess) {
-    await sendMessage("⚠️ 이미 실행 중인 작업이 있습니다. /stop으로 중지하거나 완료를 기다려주세요.");
+    await sendMessage(`⚠️ ${taskLabel()} 이미 실행 중인 작업이 있습니다.\n📝 "${promptSummary(state.currentTaskPrompt)}"\n/stop으로 중지하거나 완료를 기다려주세요.`);
     return;
   }
 
-  await sendMessage(`🚀 Claude Code 실행 중...\n📁 폴더: ${cwd}\n📝 작업: ${prompt.slice(0, 100)}...`);
+  state.taskId++;
+  state.currentTaskPrompt = prompt;
+
+  await sendMessage(`🚀 ${taskLabel()} Claude Code 실행 중...\n📁 폴더: ${cwd}\n📝 작업: ${promptSummary(prompt, 100)}`);
 
   const systemPrompt = `CRITICAL INSTRUCTION: You MUST use MCP tools for ALL communication.
 
@@ -138,23 +155,30 @@ START NOW: Send your first response via Telegram about this task: ${prompt}`;
     console.log("📤 stderr:", chunk.slice(0, 100));
   });
 
+  const closedTaskId = state.taskId;
+  const closedTaskPrompt = state.currentTaskPrompt;
+
   state.activeProcess.on("close", async (code) => {
     state.activeProcess = null;
+    state.currentTaskPrompt = null;
 
+    const label = `[#${closedTaskId}]`;
+    const summary = promptSummary(closedTaskPrompt);
     const truncatedOutput = output.length > 3000
       ? output.slice(0, 1500) + "\n\n... (중략) ...\n\n" + output.slice(-1500)
       : output;
 
     if (code === 0) {
-      await sendMessage(`✅ 작업 완료!\n\n결과:\n${truncatedOutput || "(출력 없음)"}`);
+      await sendMessage(`✅ ${label} 작업 완료! (작업: "${summary}")\n\n결과:\n${truncatedOutput || "(출력 없음)"}`);
     } else {
-      await sendMessage(`❌ 작업 실패 (코드: ${code})\n\n출력:\n${truncatedOutput}\n\n에러:\n${errorOutput.slice(0, 500)}`);
+      await sendMessage(`❌ ${label} 작업 실패 (작업: "${summary}", 코드: ${code})\n\n출력:\n${truncatedOutput}\n\n에러:\n${errorOutput.slice(0, 500)}`);
     }
   });
 
   state.activeProcess.on("error", async (error) => {
     state.activeProcess = null;
-    await sendMessage(`❌ 실행 오류: ${error.message}`);
+    state.currentTaskPrompt = null;
+    await sendMessage(`❌ [#${closedTaskId}] 실행 오류 (작업: "${promptSummary(closedTaskPrompt)}"): ${error.message}`);
   });
 }
 
@@ -185,16 +209,16 @@ async function handleCommand(cmd: { command: string; args: string }): Promise<vo
 
     case "status":
       if (state.activeProcess) {
-        await sendMessage(`🔄 작업 실행 중\n📁 폴더: ${state.currentCwd}`);
+        await sendMessage(`🔄 ${taskLabel()} 작업 실행 중\n📝 "${promptSummary(state.currentTaskPrompt)}"\n📁 폴더: ${state.currentCwd}`);
       } else {
-        await sendMessage(`✅ 대기 중\n📁 폴더: ${state.currentCwd}`);
+        await sendMessage(`✅ 대기 중 (완료된 작업: ${state.taskId}개)\n📁 폴더: ${state.currentCwd}`);
       }
       break;
 
     case "stop":
       if (state.activeProcess) {
         state.activeProcess.kill("SIGTERM");
-        await sendMessage("🛑 작업 중지 요청됨");
+        await sendMessage(`🛑 ${taskLabel()} 작업 중지 요청됨 (작업: "${promptSummary(state.currentTaskPrompt)}")`);
       } else {
         await sendMessage("실행 중인 작업이 없습니다.");
       }

@@ -1,3 +1,5 @@
+import { fetch } from "undici";
+
 const TELEGRAM_API_BASE = "https://api.telegram.org/bot";
 
 export interface TelegramConfig {
