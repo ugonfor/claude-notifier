@@ -1,6 +1,6 @@
 {
   "name": "claude-notifier-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Telegram-first supervisor communication for Claude Code",
   "type": "module",
   "main": "dist/index.js",
